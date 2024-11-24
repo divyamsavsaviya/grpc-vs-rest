@@ -1,0 +1,65 @@
+(venv) divyam@Divyams-MacBook-Air loop-grpc % python3 python/src/performance_client.py 
+Testing latency...
+
+Latency Results:
+min_latency: 0.10 ms
+max_latency: 4.78 ms
+avg_latency: 0.12 ms
+p95_latency: 0.16 ms
+p99_latency: 0.19 ms
+
+Testing throughput with different payload sizes...
+
+Payload size: SMALL
+Messages per second: 8454.42
+Throughput: 8.26 MB/s
+Total messages: 84545
+Total data: 82.56 MB
+
+Payload size: MEDIUM
+Messages per second: 6644.10
+Throughput: 64.88 MB/s
+Total messages: 66442
+Total data: 648.85 MB
+
+Payload size: LARGE
+Messages per second: 1357.11
+Throughput: 132.53 MB/s
+Total messages: 13572
+Total data: 1325.39 MB
+
+Testing streaming performance...
+
+Testing server streaming with 1000 messages...
+Received 1000 messages in 12.28 seconds
+Average throughput: 81.44 messages/second
+
+Testing batch processing...
+
+Sequential Processing:
+
+Batch size: 10
+Total processing time: 0.001 seconds
+Average time per request: 0.13 ms
+
+Batch size: 50
+Total processing time: 0.001 seconds
+Average time per request: 0.02 ms
+
+Batch size: 100
+Total processing time: 0.002 seconds
+Average time per request: 0.02 ms
+
+Parallel Processing:
+
+Batch size: 10
+Total processing time: 0.001 seconds
+Average time per request: 0.11 ms
+
+Batch size: 50
+Total processing time: 0.003 seconds
+Average time per request: 0.05 ms
+
+Batch size: 100
+Total processing time: 0.003 seconds
+Average time per request: 0.03 ms
