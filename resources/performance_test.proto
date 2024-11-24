@@ -1,0 +1,112 @@
+syntax = "proto3";
+package perftest;
+// Import timestamp for measuring time differences
+import "google/protobuf/timestamp.proto";
+// Service definition for performance testing
+service PerformanceTest {
+    // Simple unary call with different payload sizes
+    rpc UnaryCall (TestRequest) returns (TestResponse) {}
+    // Streaming calls for throughput testing
+    rpc ServerStreaming (StreamRequest) returns (stream TestResponse) {}
+    rpc ClientStreaming (stream TestRequest) returns (StreamResponse) {}
+    rpc BidirectionalStreaming (stream TestRequest) returns (stream TestResponse) {}
+    // Latency-specific test calls
+    rpc PingPong (PingRequest) returns (PongResponse) {}
+
+    // Batch processing test
+    rpc BatchProcess (BatchRequest) returns (BatchResponse) {}
+}
+// Basic request with configurable payload
+message TestRequest {
+    // Request ID for tracking
+    string request_id = 1;
+
+    // Timestamp for latency calculation
+    google.protobuf.Timestamp timestamp = 2;
+
+    // Configurable payload size
+    PayloadSize payload_size = 3;
+
+    // Actual payload
+    bytes payload = 4;
+
+    // Additional metadata for analysis
+    map<string, string> metadata = 5;
+}
+// Response with performance metrics
+message TestResponse {
+    // Response ID (matches request_id)
+    string request_id = 1;
+
+    // Server processing timestamps
+    google.protobuf.Timestamp received_at = 2;
+    google.protobuf.Timestamp processed_at = 3;
+
+    // Server-side metrics
+    ProcessingMetrics metrics = 4;
+
+    // Response payload
+    bytes payload = 5;
+}
+// Streaming request configuration
+message StreamRequest {
+    // Number of messages to stream
+    int32 message_count = 1;
+
+    // Payload size for each message
+    PayloadSize payload_size = 2;
+
+    // Delay between messages (in milliseconds)
+    int32 interval_ms = 3;
+}
+// Streaming response summary
+message StreamResponse {
+    // Total messages processed
+    int32 messages_processed = 1;
+
+    // Overall metrics
+    ProcessingMetrics aggregate_metrics = 2;
+}
+// Simple ping for latency testing
+message PingRequest {
+    string client_id = 1;
+    google.protobuf.Timestamp send_timestamp = 2;
+}
+// Pong response with timestamps
+message PongResponse {
+    string client_id = 1;
+    google.protobuf.Timestamp client_timestamp = 2;
+    google.protobuf.Timestamp server_timestamp = 3;
+}
+// Batch processing request
+message BatchRequest {
+    repeated TestRequest requests = 1;
+    bool parallel_process = 2;  // Whether to process in parallel
+}
+// Batch processing response
+message BatchResponse {
+    repeated TestResponse responses = 1;
+    ProcessingMetrics batch_metrics = 2;
+}
+// Server-side processing metrics
+message ProcessingMetrics {
+    // Processing time in microseconds
+    int64 processing_time_us = 1;
+
+    // Memory usage in bytes
+    int64 memory_used_bytes = 2;
+
+    // CPU usage percentage (0-100)
+    float cpu_usage = 3;
+
+    // Any errors encountered
+    repeated string errors = 4;
+}
+// Enum for different payload sizes
+enum PayloadSize {
+    EMPTY = 0;
+    SMALL = 1;    // 1KB
+    MEDIUM = 2;   // 10KB
+    LARGE = 3;    // 100KB
+    XLARGE = 4;   // 1MB
+}
