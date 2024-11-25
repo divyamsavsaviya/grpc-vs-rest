@@ -15,7 +15,6 @@ class PerformanceValidator:
         self.stub = performance_test_pb2_grpc.PerformanceTestStub(self.channel)
     
     def _create_timestamp(self):
-        """Helper method to create Timestamp"""
         now = time.time()
         timestamp = Timestamp()
         timestamp.seconds = int(now)
@@ -23,22 +22,22 @@ class PerformanceValidator:
         return timestamp
         
     def measure_baseline_system_noise(self, iterations=1000):
-        """Measure system noise by running empty operations"""
         noise_measurements = []
         for _ in range(iterations):
+            # time taken to execute an empty block to measure system noise
             start = time.perf_counter_ns()
             end = time.perf_counter_ns()
             noise_measurements.append(end - start)
         return statistics.mean(noise_measurements), statistics.stdev(noise_measurements)
 
-    def validate_latency_measurements(self, iterations=100):  # Reduced iterations for testing
-        """Validate latency measurements against known delays"""
+    def validate_latency_measurements(self, iterations=100): 
         results = []
-        expected_delays = [1000, 5000, 10000]  # microseconds
+        expected_delays = [1000, 5000, 10000] # change after through testing
         
         for delay in expected_delays:
             measurements = []
             for _ in range(iterations):
+                # time taken to send a request and receive a response
                 start = time.perf_counter_ns()
                 
                 request = performance_test_pb2.PingRequest(
@@ -49,7 +48,7 @@ class PerformanceValidator:
                 response = self.stub.PingPong(request)
                 end = time.perf_counter_ns()
                 
-                actual_delay = (end - start) / 1000  # Convert to microseconds
+                actual_delay = (end - start) / 1000  # Converts to microseconds
                 measurements.append(actual_delay)
             
             results.append({
@@ -62,7 +61,6 @@ class PerformanceValidator:
         return results
 
     def measure_throughput_accuracy(self, message_size=1024, duration=5):  # Reduced duration for testing
-        """Validate throughput measurements"""
         messages_sent = 0
         bytes_sent = 0
         start_time = time.perf_counter()
@@ -92,7 +90,6 @@ class PerformanceValidator:
         }
 
     def validate_parallel_processing(self, batch_size=5, iterations=5):  # Reduced sizes for testing
-        """Validate parallel processing efficiency"""
         sequential_times = []
         parallel_times = []
         
@@ -129,9 +126,9 @@ class PerformanceValidator:
             'efficiency': (statistics.mean(sequential_times) / 
                          statistics.mean(parallel_times) / batch_size) * 100
         }
-
+    
+    # creat a function to run all the tests and produce a report
     def run_comprehensive_validation(self):
-        """Run all validation tests and produce a report"""
         results = {
             'system_noise': self.measure_baseline_system_noise(),
             'latency_validation': self.validate_latency_measurements(),
@@ -142,6 +139,7 @@ class PerformanceValidator:
         self._generate_validation_report(results)
         return results
 
+    # create a function that consums the results and prints a report
     def _generate_validation_report(self, results):
         """Generate a detailed validation report"""
         print("\n=== Performance Testing System Validation Report ===\n")

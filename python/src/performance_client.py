@@ -129,14 +129,14 @@ class PerformanceTestClient:
 def main():
     client = PerformanceTestClient()
     
-    # Test latency
+    # 1 Test latency
     print("Testing latency...")
     latency_results = client.measure_latency(iterations=1000)
     print("\nLatency Results:")
     for metric, value in latency_results.items():
         print(f"{metric}: {value:.2f} ms")
 
-    # Test throughput with different payload sizes
+    # 2 Test throughput with different payload sizes
     print("\nTesting throughput with different payload sizes...")
     payload_sizes = [
         performance_test_pb2.SMALL,
@@ -152,13 +152,13 @@ def main():
         print(f"Total messages: {results['total_messages']}")
         print(f"Total data: {results['total_bytes']/1024/1024:.2f} MB")
 
-    # Test streaming
+    # 3 Test streaming (kind of optional but good to have for the grpc)
     print("\nTesting streaming performance...")
     client.test_streaming(message_count=1000, 
                          payload_size=performance_test_pb2.SMALL,
                          interval_ms=10)
 
-    # Test batch processing
+    # 4 Test batch processing (kind of optional but good to have for the grpc)
     print("\nTesting batch processing...")
     batch_sizes = [10, 50, 100]
     for parallel in [False, True]:

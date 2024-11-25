@@ -72,28 +72,67 @@ Average time per request: 0.03 ms
 Testing latency...
 
 Latency Results:
-min_latency: 0.86 ms
-max_latency: 7.38 ms
-avg_latency: 1.23 ms
-p95_latency: 1.38 ms
-p99_latency: 1.62 ms
+min_latency: 0.92 ms
+max_latency: 7.56 ms
+avg_latency: 1.21 ms
+p95_latency: 1.35 ms
+p99_latency: 1.53 ms
 
 Testing throughput with different payload sizes...
 
-Payload size: 1024 bytes
-Messages per second: 855.44
-Throughput: 0.84 MB/s
-Total messages: 8555
-Total data: 8.35 MB
+Payload size: SMALL
+Messages per second: 771.82
+Throughput: 0.75 MB/s
+Total messages: 7719
+Total data: 7.54 MB
 
-Payload size: 10240 bytes
-Messages per second: 539.50
-Throughput: 5.27 MB/s
-Total messages: 5396
-Total data: 52.70 MB
+Payload size: MEDIUM
+Messages per second: 552.52
+Throughput: 5.40 MB/s
+Total messages: 5526
+Total data: 53.96 MB
 
-Payload size: 102400 bytes
-Messages per second: 145.52
-Throughput: 14.21 MB/s
-Total messages: 1456
-Total data: 142.19 MB
+Payload size: LARGE
+Messages per second: 147.53
+Throughput: 14.41 MB/s
+Total messages: 1476
+Total data: 144.14 MB
+
+Testing streaming performance...
+
+Testing server streaming...
+Testing server streaming with 1000 messages...
+Received 1000 messages in 103.82 seconds
+Average throughput: 9.63 messages/second
+
+Testing batch processing...
+
+Testing batch processing...
+
+Sequential Processing:
+
+Batch size: 10
+Total processing time: 0.007 seconds
+Average time per request: 0.73 ms
+
+Batch size: 50
+Total processing time: 0.005 seconds
+Average time per request: 0.10 ms
+
+Batch size: 100
+Total processing time: 0.006 seconds
+Average time per request: 0.06 ms
+
+Parallel Processing:
+
+Batch size: 10
+Total processing time: 0.003 seconds
+Average time per request: 0.31 ms
+
+Batch size: 50
+Total processing time: 0.004 seconds
+Average time per request: 0.08 ms
+
+Batch size: 100
+Total processing time: 0.008 seconds
+Average time per request: 0.08 ms
