@@ -51,6 +51,16 @@ else()
     set(_GRPC_CPP_PLUGIN_EXECUTABLE $<TARGET_FILE:gRPC::grpc_cpp_plugin>)
 endif()
 
+# find_path(HTTPLIB_INCLUDE_DIR httplib.h
+#     PATHS /usr/local/include /usr/include
+#     PATH_SUFFIXES httplib cpp-httplib
+# )
+
+include_directories(
+    /opt/homebrew/include             # For general includes
+    /opt/homebrew/Cellar/cpp-httplib/0.18.1/include 
+)
+
 # -----------------------------------------------------------------------
 # Define Paths for Proto Files and Generated Code
 # -----------------------------------------------------------------------
@@ -131,6 +141,11 @@ set(SERVER_SOURCES
 
 # Add the server executable
 add_executable(helloworld-server ${SERVER_SOURCES})
+# Rest server executable
+add_executable(rest-server 
+    src/rest_server.cpp
+)
+
 
 # -----------------------------------------------------------------------
 # Link Libraries
@@ -166,6 +181,16 @@ target_compile_options(helloworld-server
     PRIVATE
     $<$<CONFIG:Release>:-O3 -march=native>
     $<$<CONFIG:Debug>:-O0 -g>
+)
+
+# target_include_directories(rest-server 
+#     PRIVATE 
+#     ${HTTPLIB_INCLUDE_DIR}
+# )
+
+target_link_libraries(rest-server
+    PRIVATE
+    OpenMP::OpenMP_CXX
 )
 
 # -----------------------------------------------------------------------

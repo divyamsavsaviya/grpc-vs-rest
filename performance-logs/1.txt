@@ -63,3 +63,37 @@ Average time per request: 0.05 ms
 Batch size: 100
 Total processing time: 0.003 seconds
 Average time per request: 0.03 ms
+
+
+
+== rest_performance_client ==
+
+(venv) divyam@Divyams-MacBook-Air src % python3 rest_performance_client.py 
+Testing latency...
+
+Latency Results:
+min_latency: 0.86 ms
+max_latency: 7.38 ms
+avg_latency: 1.23 ms
+p95_latency: 1.38 ms
+p99_latency: 1.62 ms
+
+Testing throughput with different payload sizes...
+
+Payload size: 1024 bytes
+Messages per second: 855.44
+Throughput: 0.84 MB/s
+Total messages: 8555
+Total data: 8.35 MB
+
+Payload size: 10240 bytes
+Messages per second: 539.50
+Throughput: 5.27 MB/s
+Total messages: 5396
+Total data: 52.70 MB
+
+Payload size: 102400 bytes
+Messages per second: 145.52
+Throughput: 14.21 MB/s
+Total messages: 1456
+Total data: 142.19 MB
