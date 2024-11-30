@@ -59,7 +59,6 @@ endif()
 include_directories(
     /opt/homebrew/include             # For general includes
     /opt/homebrew/Cellar/cpp-httplib/0.18.1/include 
-    /mnt/d/grpc-vs-rest/include
 )
 
 # -----------------------------------------------------------------------

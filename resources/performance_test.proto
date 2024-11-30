@@ -15,14 +15,14 @@ service PerformanceTest {
 message TestRequest {
     string request_id = 1;
     google.protobuf.Timestamp timestamp = 2;
-    PayloadSize payload_size_enum = 3;
-    repeated DataStructure payload = 4;
-//    map<string, string> metadata = 5;
+    PayloadSize payload_size = 3;
+    bytes payload = 4;
+    map<string, string> metadata = 5;
 }
 
 message StreamRequest {
     int32 message_count = 1;
-    PayloadSize payload_size_enum = 2;
+    PayloadSize payload_size = 2;
     int32 interval_ms = 3;
 }
 
@@ -50,12 +50,7 @@ message TestResponse {
     google.protobuf.Timestamp received_at = 2;
     google.protobuf.Timestamp processed_at = 3;
     ProcessingMetrics metrics = 4;
-    repeated DataStructure payload = 5;
-}
-
-message DataStructure {
-    string key = 1; 
-    string value = 2; 
+    bytes payload = 5;
 }
 
 message StreamResponse {
