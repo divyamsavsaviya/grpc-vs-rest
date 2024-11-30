@@ -91,7 +91,11 @@ public:
         *response->mutable_received_at() = MetricsCollector::getCurrentTimestamp();
         
         // Process request
-        response->set_payload(request->payload());
+        for (int i = 0; i < 5; i++) { // Example: Add 5 data structures
+        auto* data = response->add_payload();
+        data->set_key("key" + std::to_string(i));
+        data->set_value("value" + std::to_string(i));
+    }
         
         auto end_time = std::chrono::system_clock::now();
         *response->mutable_processed_at() = MetricsCollector::getCurrentTimestamp();
@@ -109,10 +113,17 @@ public:
             response.set_request_id(std::to_string(i));
             
             // Generate payload based on requested size
-            std::string payload(MetricsCollector::getPayloadSize(request->payload_size()), 'x');
-            response.set_payload(payload);
+            // std::string payload(MetricsCollector::getPayloadSize(request->payload_size()), 'x');
+            // response.set_payload(payload);
             
             *response.mutable_received_at() = MetricsCollector::getCurrentTimestamp();
+
+            for (int j = 0; j < 3; j++) { // Example: Add 3 data structures per message
+                auto* data = response.add_payload();
+                data->set_key("stream_key" + std::to_string(j));
+                data->set_value("stream_value" + std::to_string(j));
+            }
+
             *response.mutable_processed_at() = MetricsCollector::getCurrentTimestamp();
             
             writer->Write(response);
@@ -152,8 +163,15 @@ public:
             
             perftest::TestResponse response;
             response.set_request_id(request.request_id());
-            response.set_payload(request.payload());
+            // response.set_payload(request.payload());
             *response.mutable_received_at() = MetricsCollector::getCurrentTimestamp();
+
+            for (int i = 0; i < 2; i++) { // Adding 2 data structures per request
+                auto* data = response.add_payload();
+                data->set_key("bi_key" + std::to_string(i));
+                data->set_value("bi_value" + std::to_string(i));
+            }
+
             *response.mutable_processed_at() = MetricsCollector::getCurrentTimestamp();
             
             auto end_time = std::chrono::system_clock::now();
@@ -185,7 +203,10 @@ public:
                     auto start = std::chrono::system_clock::now();
                     
                     resp.set_request_id(req.request_id());
-                    resp.set_payload(req.payload());
+                    for (const auto& data : req.payload()) {
+                        auto* new_payload = resp.add_payload();  
+                        new_payload->CopyFrom(data);            
+                    }
                     *resp.mutable_received_at() = MetricsCollector::getCurrentTimestamp();
                     *resp.mutable_processed_at() = MetricsCollector::getCurrentTimestamp();
                     
@@ -206,7 +227,10 @@ public:
                 auto start = std::chrono::system_clock::now();
                 
                 resp->set_request_id(req.request_id());
-                resp->set_payload(req.payload());
+                for (const auto& data : req.payload()) {
+                    auto* new_payload = resp->add_payload();
+                    new_payload->CopyFrom(data);
+                }
                 *resp->mutable_received_at() = MetricsCollector::getCurrentTimestamp();
                 *resp->mutable_processed_at() = MetricsCollector::getCurrentTimestamp();
                 
@@ -223,21 +247,27 @@ public:
 };
 
 void RunServer() {
-    std::string server_address("0.0.0.0:50051");
-    
-    GreeterServiceImpl greeter_service;
-    PerformanceTestServiceImpl perf_service;
+    try{
+        std::string server_address("0.0.0.0:50051");
+        
+        GreeterServiceImpl greeter_service;
+        PerformanceTestServiceImpl perf_service;
 
-    ServerBuilder builder;
-    builder.SetMaxReceiveMessageSize(1024 * 1024 * 10);  // 10MB
-    builder.SetMaxSendMessageSize(1024 * 1024 * 10);     // 10MB
-    builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
-    builder.RegisterService(&greeter_service);
-    builder.RegisterService(&perf_service);
+        ServerBuilder builder;
+        builder.SetMaxReceiveMessageSize(1024 * 1024 * 10);  // 10MB
+        builder.SetMaxSendMessageSize(1024 * 1024 * 10);     // 10MB
+        builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
+        builder.RegisterService(&greeter_service);
+        builder.RegisterService(&perf_service);
 
-    std::unique_ptr<Server> server(builder.BuildAndStart());
-    std::cout << "Server listening on " << server_address << std::endl;
-    server->Wait();
+        std::cout << "Initializing gRPC server..." << std::endl;
+
+        std::unique_ptr<Server> server(builder.BuildAndStart());
+        std::cout << "Server listening on " << server_address << std::endl;
+        server->Wait();
+    }catch(const std::exception& e) {
+        std::cerr << "Server failed to start: " << e.what() << std::endl;
+    }
 }
 
 int main(int argc, char** argv) {

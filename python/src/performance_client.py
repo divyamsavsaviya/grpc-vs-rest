@@ -56,7 +56,7 @@ class PerformanceTestClient:
             'p99_latency': statistics.quantiles(latencies, n=100)[98]
         }
 
-    def measure_throughput(self, payload_size, duration_seconds=10):
+    def measure_throughput(self, payload_size_enum, duration_seconds=10):
         messages_sent = 0
         bytes_sent = 0
         start_time = time.time()
@@ -65,13 +65,18 @@ class PerformanceTestClient:
             request = performance_test_pb2.TestRequest(
                 request_id=str(uuid.uuid4()),
                 timestamp=self.create_timestamp(),
-                payload_size=payload_size,
-                payload=self.generate_payload(payload_size)
+                payload_size=payload_size_enum,
+                payload=self.generate_payload(payload_size_enum)
             )
             
             response = self.stub.UnaryCall(request)
+
+            # Handle the new payload type: repeated DataStructure
+            # for data in response.payload:
+                # print(f"Data Key: {data.key}, Value: {data.value}")
+
             messages_sent += 1
-            bytes_sent += len(request.payload)
+            bytes_sent += sum(len(data.value) for data in response.payload)
         
         elapsed_time = time.time() - start_time
         return {
@@ -81,10 +86,10 @@ class PerformanceTestClient:
             'total_bytes': bytes_sent
         }
 
-    def test_streaming(self, message_count=100, payload_size=performance_test_pb2.SMALL, interval_ms=100):
+    def test_streaming(self, message_count=100, payload_size_enum=performance_test_pb2.SMALL, interval_ms=100):
         request = performance_test_pb2.StreamRequest(
             message_count=message_count,
-            payload_size=payload_size,
+            payload_size=payload_size_enum,
             interval_ms=interval_ms
         )
         
@@ -94,6 +99,8 @@ class PerformanceTestClient:
         
         for response in self.stub.ServerStreaming(request):
             messages_received += 1
+            # for data in response.payload:
+                # print(f"Stream Data Key: {data.key}, Value: {data.value}")
             
         elapsed_time = time.time() - start_time
         print(f"Received {messages_received} messages in {elapsed_time:.2f} seconds")
@@ -118,6 +125,11 @@ class PerformanceTestClient:
         start_time = time.time()
         response = self.stub.BatchProcess(batch_request)
         elapsed_time = time.time() - start_time
+
+        # for batch_response in response.responses:
+            # print(f"Batch Response ID: {batch_response.request_id}")
+            # for data in batch_response.payload:
+                # print(f"  Batch Data Key: {data.key}, Value: {data.value}")
         
         return {
             'batch_size': batch_size,
@@ -155,7 +167,7 @@ def main():
     # 3 Test streaming (kind of optional but good to have for the grpc)
     print("\nTesting streaming performance...")
     client.test_streaming(message_count=1000, 
-                         payload_size=performance_test_pb2.SMALL,
+                         payload_size_enum=performance_test_pb2.SMALL,
                          interval_ms=10)
 
     # 4 Test batch processing (kind of optional but good to have for the grpc)

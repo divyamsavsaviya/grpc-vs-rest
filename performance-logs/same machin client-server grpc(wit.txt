@@ -1,0 +1,142 @@
+// same machin client-server grpc(with other services running too)
+-------------------------------------------------------------------------------------------
+
+Testing latency...
+
+Latency Results:
+min_latency: 0.34 ms
+max_latency: 3.82 ms
+avg_latency: 0.59 ms
+p95_latency: 0.70 ms
+p99_latency: 0.85 ms
+
+Testing throughput with different payload sizes...
+
+Payload size: SMALL
+Messages per second: 1684.17
+Throughput: 1.64 MB/s
+Total messages: 16842
+Total data: 16.45 MB
+
+Payload size: MEDIUM
+Messages per second: 1694.57
+Throughput: 16.55 MB/s
+Total messages: 16946
+Total data: 165.49 MB
+
+Payload size: LARGE
+Messages per second: 1021.30
+Throughput: 99.74 MB/s
+Total messages: 10214
+Total data: 997.46 MB
+
+Testing streaming performance...
+
+Testing server streaming with 1000 messages...
+Received 1000 messages in 10.71 seconds
+Average throughput: 93.39 messages/second
+
+Testing batch processing...
+
+Sequential Processing:
+
+Batch size: 10
+Total processing time: 0.002 seconds
+Average time per request: 0.21 ms
+
+Batch size: 50
+Total processing time: 0.001 seconds
+Average time per request: 0.03 ms
+
+Batch size: 100
+Total processing time: 0.002 seconds
+Average time per request: 0.02 ms
+
+Parallel Processing:
+
+Batch size: 10
+Total processing time: 0.003 seconds
+Average time per request: 0.28 ms
+
+Batch size: 50
+Total processing time: 0.007 seconds
+Average time per request: 0.14 ms
+
+Batch size: 100
+Total processing time: 0.013 seconds
+Average time per request: 0.13 ms
+
+
+-------------------------------------------------------------------------------------------
+
+Same machine -windows, grpc server with nothing else running on machine:
+-------------------------------------------------------------------------------------------
+
+Testing latency...
+
+Latency Results:
+min_latency: 0.37 ms
+max_latency: 5.51 ms
+avg_latency: 0.53 ms
+p95_latency: 0.78 ms
+p99_latency: 1.09 ms
+
+Testing throughput with different payload sizes...
+
+Payload size: SMALL
+Messages per second: 1921.58
+Throughput: 1.88 MB/s
+Total messages: 19216
+Total data: 18.77 MB
+
+Payload size: MEDIUM
+Messages per second: 1965.83
+Throughput: 19.20 MB/s
+Total messages: 19659
+Total data: 191.98 MB
+
+Payload size: LARGE
+Messages per second: 1061.79
+Throughput: 103.69 MB/s
+Total messages: 10619
+Total data: 1037.01 MB
+
+Testing streaming performance...
+
+Testing server streaming with 1000 messages...
+Received 1000 messages in 10.72 seconds
+Average throughput: 93.27 messages/second
+
+Testing batch processing...
+
+Sequential Processing:
+
+Batch size: 10
+Total processing time: 0.003 seconds
+Average time per request: 0.28 ms
+
+Batch size: 50
+Total processing time: 0.002 seconds
+Average time per request: 0.04 ms
+
+Batch size: 100
+Total processing time: 0.003 seconds
+Average time per request: 0.03 ms
+
+Parallel Processing:
+
+Batch size: 10
+Total processing time: 0.003 seconds
+Average time per request: 0.30 ms
+
+Batch size: 50
+Total processing time: 0.005 seconds
+Average time per request: 0.10 ms
+
+Batch size: 100
+Total processing time: 0.008 seconds
+Average time per request: 0.08 ms
+
+
+
+-------------------------------------------------------------------------------------------
