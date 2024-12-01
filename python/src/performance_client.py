@@ -24,12 +24,31 @@ class PerformanceTestClient:
     def generate_payload(self, size):
         sizes = {
             performance_test_pb2.EMPTY: 0,
-            performance_test_pb2.SMALL: 1024,
-            performance_test_pb2.MEDIUM: 10240,
-            performance_test_pb2.LARGE: 102400,
-            performance_test_pb2.XLARGE: 1048576
+            performance_test_pb2.SMALL: 1024 * 5,        # 1MB
+            performance_test_pb2.MEDIUM: 10240 * 5, # 50MB
+            performance_test_pb2.LARGE: 102400 * 5, # 200MB
+            performance_test_pb2.XLARGE: 1048576 # 1GB
         }
-        return os.urandom(sizes[size])
+
+        target_size = sizes[size]
+        payload = []
+        current_size = 0
+
+        key_prefix = b"key_"
+        value_prefix = "value_"
+        overhead_per_entry = len(key_prefix) + len(value_prefix) + 20  # Approx. protobuf overhead
+
+        while current_size < target_size:
+            index = len(payload)
+            key = key_prefix + bytes(str(index), "utf-8")
+            value = value_prefix + "x" * (target_size // 1000)  # Adjust value size dynamically
+
+            entry = performance_test_pb2.DataStructure(key=key, value=value)
+            payload.append(entry)
+
+            current_size += len(key) + len(value.encode("utf-8")) + overhead_per_entry
+
+        return payload
 
     def measure_latency(self, iterations=1000):
         latencies = []
@@ -65,18 +84,20 @@ class PerformanceTestClient:
             request = performance_test_pb2.TestRequest(
                 request_id=str(uuid.uuid4()),
                 timestamp=self.create_timestamp(),
-                payload_size=payload_size_enum,
+                payload_size_enum=payload_size_enum,
                 payload=self.generate_payload(payload_size_enum)
             )
             
+            # serialized_size = sum(len(entry.key) + len(entry.value.encode("utf-8")) for entry in request.payload)
+            # print(f"Generated payload size: {serialized_size} bytes")
             response = self.stub.UnaryCall(request)
 
-            # Handle the new payload type: repeated DataStructure
-            # for data in response.payload:
-                # print(f"Data Key: {data.key}, Value: {data.value}")
+            # Calculate total bytes sent based on the response payload
+            for data in request.payload:
+                bytes_sent += len(data.key) + len(data.value.encode("utf-8"))
 
             messages_sent += 1
-            bytes_sent += sum(len(data.value) for data in response.payload)
+            # bytes_sent += sum(len(data.value) for data in response.payload)
         
         elapsed_time = time.time() - start_time
         return {
@@ -89,7 +110,7 @@ class PerformanceTestClient:
     def test_streaming(self, message_count=100, payload_size_enum=performance_test_pb2.SMALL, interval_ms=100):
         request = performance_test_pb2.StreamRequest(
             message_count=message_count,
-            payload_size=payload_size_enum,
+            payload_size_enum=payload_size_enum,
             interval_ms=interval_ms
         )
         
@@ -112,7 +133,7 @@ class PerformanceTestClient:
             request = performance_test_pb2.TestRequest(
                 request_id=str(uuid.uuid4()),
                 timestamp=self.create_timestamp(),
-                payload_size=performance_test_pb2.SMALL,
+                payload_size_enum=performance_test_pb2.SMALL,
                 payload=self.generate_payload(performance_test_pb2.SMALL)
             )
             requests.append(request)
@@ -126,10 +147,10 @@ class PerformanceTestClient:
         response = self.stub.BatchProcess(batch_request)
         elapsed_time = time.time() - start_time
 
+         # Log response payloads
         # for batch_response in response.responses:
-            # print(f"Batch Response ID: {batch_response.request_id}")
             # for data in batch_response.payload:
-                # print(f"  Batch Data Key: {data.key}, Value: {data.value}")
+                # print(f"Batch Data Key: {data.key}, Value: {data.value}")
         
         return {
             'batch_size': batch_size,

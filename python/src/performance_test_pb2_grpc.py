@@ -26,8 +26,7 @@ if _version_not_supported:
 
 
 class PerformanceTestStub(object):
-    """Service definition for performance testing
-    """
+    """Missing associated documentation comment in .proto file."""
 
     def __init__(self, channel):
         """Constructor.
@@ -68,19 +67,16 @@ class PerformanceTestStub(object):
 
 
 class PerformanceTestServicer(object):
-    """Service definition for performance testing
-    """
+    """Missing associated documentation comment in .proto file."""
 
     def UnaryCall(self, request, context):
-        """Simple unary call with different payload sizes
-        """
+        """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def ServerStreaming(self, request, context):
-        """Streaming calls for throughput testing
-        """
+        """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
@@ -98,15 +94,13 @@ class PerformanceTestServicer(object):
         raise NotImplementedError('Method not implemented!')
 
     def PingPong(self, request, context):
-        """Latency-specific test calls
-        """
+        """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def BatchProcess(self, request, context):
-        """Batch processing test
-        """
+        """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
@@ -153,8 +147,7 @@ def add_PerformanceTestServicer_to_server(servicer, server):
 
  # This class is part of an EXPERIMENTAL API.
 class PerformanceTest(object):
-    """Service definition for performance testing
-    """
+    """Missing associated documentation comment in .proto file."""
 
     @staticmethod
     def UnaryCall(request,
