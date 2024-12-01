@@ -60,6 +60,8 @@ class PerformanceTestClient:
                 client_id=str(uuid.uuid4()),
                 send_timestamp=self.create_timestamp()
             )
+
+            
             
             response = self.stub.PingPong(request)
             
@@ -90,6 +92,16 @@ class PerformanceTestClient:
             
             # serialized_size = sum(len(entry.key) + len(entry.value.encode("utf-8")) for entry in request.payload)
             # print(f"Generated payload size: {serialized_size} bytes")
+
+             # Print the request data
+            # print("Request Data:")
+            # print(f"Request ID: {request.request_id}")
+            # print(f"Timestamp: {request.timestamp}")
+            # print(f"Payload Size Enum: {request.payload_size_enum}")
+            # print("Payload:")
+            # for data in request.payload:
+                # print(f"  Key: {data.key}, Value: {data.value}")
+
             response = self.stub.UnaryCall(request)
 
             # Calculate total bytes sent based on the response payload

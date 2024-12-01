@@ -36,7 +36,15 @@ public:
             response["request_id"] = request["request_id"];
             response["received_at"] = std::chrono::duration_cast<std::chrono::microseconds>(
                 start_time.time_since_epoch()).count();
-            
+
+            response["payload"] = json::array();
+            for (const auto& data : request["payload"]) {
+                json resp;
+                resp["key"] = data["key"];
+                resp["value"] = data["value"];
+                response["payload"].push_back(resp);
+            }
+
             auto end_time = std::chrono::system_clock::now();
             response["processed_at"] = std::chrono::duration_cast<std::chrono::microseconds>(
                 end_time.time_since_epoch()).count();
@@ -75,33 +83,49 @@ public:
             
             int message_count = std::stoi(req.get_param_value("message_count"));
             int interval_ms = std::stoi(req.get_param_value("interval_ms"));
-            
-            std::string response_body;
+            int payload_size = std::stoi(req.get_param_value("payload_size"));
+            int num_structures = std::stoi(req.get_param_value("num_structures"));
+
             for (int i = 1; i <= message_count; i++) {
-                json response = {
-                    {"sequence_number", i},
-                    {"request_id", std::to_string(i)}
-                };
-                
-                std::string message = "data: " + response.dump() + "\n\n";
-                response_body += message;
-                
-                std::cout << "  Sending stream response " << i << std::endl;
-                std::this_thread::sleep_for(std::chrono::milliseconds(interval_ms));
+                json response;
+                response["sequence_number"] = i;
+                response["payload"] = json::array();
+
+                for (int j = 0; j < num_structures; j++) {
+                    response["payload"].push_back({
+                        {"key", "key_" + std::to_string(j)},
+                        {"value", std::string(payload_size, 'x')}
+                    });
+                }
+
+                std::string message = "data: " + response.dump() + "\n\n";  
+                res.set_content(message, "text/event-stream");
+
+                std::this_thread::sleep_for(std::chrono::milliseconds(interval_ms));    
             }
-            
-            res.set_content(response_body, "text/event-stream");
         });
 
         // Ping-Pong
         svr.Post("/ping", [this](const httplib::Request& req, httplib::Response& res) {
-            
+            auto start_time = std::chrono::system_clock::now();
             json request = json::parse(req.body);
             json response;
             response["client_id"] = request["client_id"];
             response["client_timestamp"] = request["send_timestamp"];
             response["server_timestamp"] = std::chrono::duration_cast<std::chrono::microseconds>(
                 std::chrono::system_clock::now().time_since_epoch()).count();
+            response["payload"] = json::array();
+
+            for (const auto& data : request["payload"]) {
+                json resp;
+                resp["key"] = data["key"];
+                resp["value"] = data["value"];
+                response["payload"].push_back(resp);
+            }
+
+            auto end_time = std::chrono::system_clock::now();
+            response["metrics"]["processing_time_us"] =
+                std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time).count();
             
             res.set_content(response.dump(), "application/json");
         });
@@ -114,36 +138,25 @@ public:
             json response;
             response["responses"] = json::array();
             
-            bool parallel = request["parallel_process"].get<bool>();
-            
-            if (parallel) {
-                std::vector<std::thread> threads;
-                std::mutex response_mutex;
-                
-                for (const auto& req : request["requests"]) {
-                    threads.emplace_back([&response, &req, &response_mutex]() {
-                        json resp;
-                        resp["request_id"] = req["request_id"];
-                        std::lock_guard<std::mutex> lock(response_mutex);
-                        response["responses"].push_back(resp);
+            for (const auto& data : request["requests"]) {
+                json resp;
+                resp["request_id"] = data["request_id"];
+                resp["payload"] = json::array();
+
+                for (const auto& item : data["payload"]) {
+                    resp["payload"].push_back({
+                        {"key", item["key"]},
+                        {"value", item["value"]}
                     });
                 }
-                
-                for (auto& thread : threads) {
-                    thread.join();
-                }
-            } else {
-                for (const auto& req : request["requests"]) {
-                    json resp;
-                    resp["request_id"] = req["request_id"];
-                    response["responses"].push_back(resp);
-                }
+
+                response["responses"].push_back(resp);
             }
-            
+
             auto end_time = std::chrono::system_clock::now();
-            response["batch_metrics"]["processing_time_us"] = 
+            response["metrics"]["processing_time_us"] =
                 std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time).count();
-            
+
             res.set_content(response.dump(), "application/json");
         });
     }
