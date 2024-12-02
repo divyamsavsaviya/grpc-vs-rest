@@ -8,6 +8,7 @@ import statistics
 import os
 import threading
 from concurrent.futures import ThreadPoolExecutor
+import random
 
 class PerformanceTestClient:
     def __init__(self, server_address='localhost:50051'):
@@ -42,8 +43,11 @@ class PerformanceTestClient:
             index = len(payload)
             key = key_prefix + bytes(str(index), "utf-8")
             value = value_prefix + "x" * (target_size // 1000)  # Adjust value size dynamically
+            age = random.randint(18, 30)
+            gradepoint = round(random.uniform(2, 4), 2)
+            
 
-            entry = performance_test_pb2.DataStructure(key=key, value=value)
+            entry = performance_test_pb2.DataStructure(key=key, value=value, age=age, gradepoint=gradepoint)
             payload.append(entry)
 
             current_size += len(key) + len(value.encode("utf-8")) + overhead_per_entry
@@ -106,7 +110,7 @@ class PerformanceTestClient:
 
             # Calculate total bytes sent based on the response payload
             for data in request.payload:
-                bytes_sent += len(data.key) + len(data.value.encode("utf-8"))
+                bytes_sent += len(data.key) + len(data.value.encode("utf-8")) + 4 + 4  # 4 each for int and float
 
             messages_sent += 1
             # bytes_sent += sum(len(data.value) for data in response.payload)
@@ -198,22 +202,22 @@ def main():
         print(f"Total data: {results['total_bytes']/1024/1024:.2f} MB")
 
     # 3 Test streaming (kind of optional but good to have for the grpc)
-    print("\nTesting streaming performance...")
-    client.test_streaming(message_count=1000, 
-                         payload_size_enum=performance_test_pb2.SMALL,
-                         interval_ms=10)
+    # print("\nTesting streaming performance...")
+    # client.test_streaming(message_count=1000, 
+                        #  payload_size_enum=performance_test_pb2.SMALL,
+                        #  interval_ms=10)
 
     # 4 Test batch processing (kind of optional but good to have for the grpc)
-    print("\nTesting batch processing...")
-    batch_sizes = [10, 50, 100]
-    for parallel in [False, True]:
-        mode = "Parallel" if parallel else "Sequential"
-        print(f"\n{mode} Processing:")
-        for batch_size in batch_sizes:
-            results = client.test_batch_processing(batch_size, parallel)
-            print(f"\nBatch size: {results['batch_size']}")
-            print(f"Total processing time: {results['processing_time']:.3f} seconds")
-            print(f"Average time per request: {results['avg_time_per_request']*1000:.2f} ms")
+    # print("\nTesting batch processing...")
+    # batch_sizes = [10, 50, 100]
+    # for parallel in [False, True]:
+        # mode = "Parallel" if parallel else "Sequential"
+        # print(f"\n{mode} Processing:")
+        # for batch_size in batch_sizes:
+            # results = client.test_batch_processing(batch_size, parallel)
+            # print(f"\nBatch size: {results['batch_size']}")
+            # print(f"Total processing time: {results['processing_time']:.3f} seconds")
+            # print(f"Average time per request: {results['avg_time_per_request']*1000:.2f} ms")
 
 if __name__ == '__main__':
     main()

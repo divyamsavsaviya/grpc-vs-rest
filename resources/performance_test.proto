@@ -55,7 +55,9 @@ message TestResponse {
 
 message DataStructure {
     bytes key = 1; 
-    string value = 2; 
+    string value = 2; //name
+    int32 age = 3;
+    float gradepoint = 4;
 }
 
 message StreamResponse {

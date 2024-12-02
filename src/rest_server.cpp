@@ -42,6 +42,8 @@ public:
                 json resp;
                 resp["key"] = data["key"];
                 resp["value"] = data["value"];
+                resp["age"] = data["age"]; 
+                resp["gradepoint"] = data["gradepoint"];
                 response["payload"].push_back(resp);
             }
 
@@ -120,6 +122,8 @@ public:
                 json resp;
                 resp["key"] = data["key"];
                 resp["value"] = data["value"];
+                resp["age"] = data["age"];
+                resp["gradepoint"] = data["gradepoint"];
                 response["payload"].push_back(resp);
             }
 
@@ -146,7 +150,9 @@ public:
                 for (const auto& item : data["payload"]) {
                     resp["payload"].push_back({
                         {"key", item["key"]},
-                        {"value", item["value"]}
+                        {"value", item["value"]},
+                        {"age", item["age"]}, 
+                        {"gradepoint", item["gradepoint"]}
                     });
                 }
 

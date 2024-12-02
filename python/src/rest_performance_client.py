@@ -6,6 +6,7 @@ import uuid
 import statistics
 import json
 from enum import Enum
+import random
 
 class PayloadSize(Enum):
     SMALL = 1024      # 1KB
@@ -18,9 +19,13 @@ class RestPerformanceClient:
 
     def generate_payload(self, num_structures, size_per_structure):
         """Generate an array of data structures."""
-        return [{'key': f'key_{i}', 'value': 'x' * size_per_structure} for i in range(num_structures)]
+        return [{'key': f'key_{i}',
+                  'value': 'x' * size_per_structure,
+                  'age': random.randint(18, 30),
+                  'gradepoint': round(random.uniform(2.0, 4.0), 2)
+                } for i in range(num_structures)]
     
-    def measure_latency(self, num_structures, size_per_structure, iterations=1000):
+    def measure_latency(self, num_structures, size_per_structure, iterations=10):
         """Measure basic latency using ping-pong"""
         latencies = []
         payload = self.generate_payload(num_structures, size_per_structure)
@@ -79,7 +84,13 @@ class RestPerformanceClient:
 
             response = requests.post(f"{self.server_address}/unary", json=request_data)
             messages_sent += 1
-            bytes_sent += num_structures * size_per_structure
+            for data in payload:
+                bytes_sent += len(data['key'])  # Key size (bytes)
+                bytes_sent += len(data['value'].encode('utf-8'))  # Value size
+                bytes_sent += 4  # Age
+                bytes_sent += 4  # Gradepoint
+
+            # bytes_sent += num_structures * size_per_structure
         
         elapsed_time = time.time() - start_time
         messages_per_second = messages_sent / elapsed_time
@@ -188,11 +199,11 @@ def main():
         print(f"\nTesting throughput with payload size: {config['label']}")
         client.measure_throughput(config["num_structures"], config["size_per_structure"])
     
-    print("\nTesting streaming performance...")
-    client.test_streaming()
+    # print("\nTesting streaming performance...")
+    # client.test_streaming()
     
-    print("\nTesting batch processing...")
-    client.test_batch_processing()
+    # print("\nTesting batch processing...")
+    # client.test_batch_processing()
 
 if __name__ == "__main__":
     main()
